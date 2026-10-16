@@ -8,7 +8,7 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f0f0f0; min-height: 100vh; display: flex; justify-content: center; padding: 15px; }
-        .container { width: 100%; max-width: 700px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; align-self: flex-start; }
+        .container { width: 100%; max-width: 900px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); overflow: hidden; align-self: flex-start; }
         .header { background: linear-gradient(135deg, #8e44ad, #6c3483); color: white; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; }
         .header h1 { font-size: 20px; }
         .header small { display: block; font-size: 12px; opacity: 0.85; margin-top: 2px; }
@@ -118,6 +118,44 @@
             margin-bottom: 15px; font-size: 13px; display: none;
         }
         .config-warning code { background: #fff; padding: 2px 6px; border-radius: 4px; }
+        
+        /* QR CODE */
+        .qr-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
+        .qr-toolbar label { font-size: 13px; color: #555; font-weight: bold; }
+        .qr-toolbar select { padding: 8px 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 13px; }
+        .qr-toolbar .btn-sm { padding: 8px 14px; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
+        .btn-download-all { background: #e67e22; color: white; }
+        .btn-download-all:hover { background: #d35400; }
+        .btn-print-selected { background: #27ae60; color: white; }
+        .btn-print-selected:hover { background: #229954; }
+        .btn-select-all { background: #95a5a6; color: white; }
+        .btn-select-all:hover { background: #7f8c8d; }
+        
+        .qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        .qr-card { position: relative; background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 12px; text-align: center; transition: all 0.2s; }
+        .qr-card:hover { border-color: #8e44ad; box-shadow: 0 4px 12px rgba(142,68,173,0.2); }
+        .qr-card.selected { border-color: #2ecc71; background: #eafaf1; }
+        .qr-card img { width: 100%; max-width: 160px; height: auto; display: block; margin: 0 auto 8px; }
+        .qr-card .qr-nama { font-weight: bold; font-size: 12px; color: #2c3e50; margin: 5px 0 3px; line-height: 1.2; min-height: 28px; }
+        .qr-card .qr-nis { font-size: 11px; color: #7f8c8d; font-family: monospace; }
+        .qr-card .qr-kelas { font-size: 10px; color: #8e44ad; font-weight: bold; margin-top: 3px; }
+        .qr-card .qr-actions { margin-top: 8px; display: flex; gap: 4px; justify-content: center; }
+        .qr-card .qr-actions button { font-size: 11px; padding: 5px 8px; border-radius: 4px; border: none; cursor: pointer; background: #3498db; color: white; font-weight: bold; }
+        .qr-card .qr-actions button:hover { background: #2980b9; }
+        .qr-card .qr-actions button.print-btn { background: #27ae60; }
+        .qr-card .qr-actions button.print-btn:hover { background: #229954; }
+        .qr-card .qr-checkbox { position: absolute; top: 8px; left: 8px; width: 18px; height: 18px; cursor: pointer; }
+        
+        .download-progress {
+            background: #fff3cd; color: #856404; padding: 12px;
+            border-radius: 8px; margin-top: 10px; font-size: 13px; display: none;
+        }
+        .download-progress .bar {
+            height: 8px; background: #e0e0e0; border-radius: 4px; margin-top: 8px; overflow: hidden;
+        }
+        .download-progress .bar-fill {
+            height: 100%; background: #f39c12; transition: width 0.3s; width: 0%;
+        }
     </style>
 </head>
 <body>
@@ -197,8 +235,10 @@
                 <div class="tab active" onclick="switchTab('harian', this)">Harian</div>
                 <div class="tab" onclick="switchTab('bulanan', this)">Bulanan</div>
                 <div class="tab" onclick="switchTab('tahunan', this)">Tahunan</div>
+                <div class="tab" onclick="switchTab('qr', this)">QR Code</div>
             </div>
             
+            <!-- Filter Harian -->
             <div class="filter-group" id="filterHarian">
                 <label>Tanggal:</label>
                 <input type="date" id="inputTanggal">
@@ -207,6 +247,7 @@
                 <button class="btn-excel" onclick="exportLaporan('harian', 'xlsx')">📊 Excel</button>
             </div>
             
+            <!-- Filter Bulanan -->
             <div class="filter-group" id="filterBulanan" style="display:none;">
                 <label>Bulan:</label>
                 <select id="inputBulan">
@@ -224,12 +265,43 @@
                 <button class="btn-excel" onclick="exportLaporan('bulanan', 'xlsx')">📊 Excel</button>
             </div>
             
+            <!-- Filter Tahunan -->
             <div class="filter-group" id="filterTahunan" style="display:none;">
                 <label>Tahun:</label>
                 <input type="number" id="inputTahun" value="2024" style="width: 80px;">
                 <button class="btn-primary" onclick="loadTahunan()">Tampilkan</button>
                 <button class="btn-pdf" onclick="exportLaporan('tahunan', 'pdf')">📄 PDF</button>
                 <button class="btn-excel" onclick="exportLaporan('tahunan', 'xlsx')">📊 Excel</button>
+            </div>
+            
+            <!-- Panel QR Code -->
+            <div id="panelQR" style="display:none;">
+                <div class="qr-toolbar">
+                    <label>Kelas:</label>
+                    <select id="inputKelasQR" style="min-width:150px;">
+                        <option value="semua">Semua Kelas</option>
+                    </select>
+                    <button class="btn-sm btn-primary" onclick="loadQRCode()">🔄 Tampilkan</button>
+                    <button class="btn-sm btn-select-all" onclick="toggleSelectAll()">☑️ Pilih Semua</button>
+                    <button class="btn-sm btn-download-all" onclick="downloadSelectedQR()">⬇️ Download Terpilih</button>
+                    <button class="btn-sm btn-print-selected" onclick="printSelectedQR()">🖨️ Cetak Terpilih</button>
+                </div>
+                
+                <div class="info-msg" style="display:block; background:#e3f2fd; color:#0d47a1;">
+                    💡 <b>Cara pakai:</b> Centang siswa yang mau di-download, klik <b>Download Terpilih</b>. File PNG akan diunduh satu per satu. Untuk cetak massal, klik <b>Cetak Terpilih</b>.
+                </div>
+                
+                <div class="loading" id="loadingQR" style="display:none;">Memuat QR Code...</div>
+                
+                <div class="download-progress" id="downloadProgress">
+                    <span id="downloadProgressText">Mengunduh...</span>
+                    <div class="bar"><div class="bar-fill" id="downloadBarFill"></div></div>
+                </div>
+                
+                <div id="qrGrid" class="qr-grid"></div>
+                <p id="qrEmptyMsg" style="text-align:center; color:#7f8c8d; display:none; padding:20px;">
+                    Belum ada data siswa. Tambahkan di sheet "Siswa".
+                </p>
             </div>
             
             <div class="info-msg" id="infoMsg"></div>
@@ -254,13 +326,10 @@
     // =====================================================
     const API_URL = "https://script.google.com/macros/s/AKfycbw8a0gh6K_8QRcudQEB_hBU4AbV0QOdPP784YCNK9xgSsvOUB5r7DLguJT0WgZmBufI/exec";
     
-    // =====================================================
-    // CEK KONFIGURASI
-    // =====================================================
     if (API_URL.indexOf('GANTI_DENGAN') !== -1) {
         document.getElementById('configWarning').style.display = 'block';
     }
-    
+
     // =====================================================
     // STATE
     // =====================================================
@@ -273,12 +342,14 @@
     let currentTab = 'harian';
     let liveFeedInterval = null;
     let lastFeedData = '';
+    let qrStudentsList = [];
+    let qrSelectedSet = {};
 
     const rfidInput = document.getElementById('rfidInput');
     document.getElementById('inputTanggal').valueAsDate = new Date();
 
     // =====================================================
-    // API HELPER
+    // API
     // =====================================================
     async function apiGet(params) {
         const url = API_URL + '?' + new URLSearchParams(params).toString();
@@ -310,6 +381,10 @@
         const p = tglStr.split('-');
         if (p.length !== 3) return tglStr;
         return p[2] + '/' + p[1] + '/' + p[0];
+    }
+    
+    function escapeStr(s) {
+        return (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     }
 
     // =====================================================
@@ -628,6 +703,9 @@
         toggleAdmin();
     }
 
+    // =====================================================
+    // TAB
+    // =====================================================
     function switchTab(tab, el) {
         currentTab = tab;
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -635,11 +713,20 @@
         document.getElementById('filterHarian').style.display = (tab === 'harian') ? 'flex' : 'none';
         document.getElementById('filterBulanan').style.display = (tab === 'bulanan') ? 'flex' : 'none';
         document.getElementById('filterTahunan').style.display = (tab === 'tahunan') ? 'flex' : 'none';
+        document.getElementById('panelQR').style.display = (tab === 'qr') ? 'block' : 'none';
         document.getElementById('tableWrap').style.display = 'none';
         document.getElementById('noDataMsg').style.display = 'none';
         document.getElementById('infoMsg').style.display = 'none';
+        
+        if (tab === 'qr') {
+            loadDaftarKelas();
+            loadQRCode();
+        }
     }
 
+    // =====================================================
+    // LAPORAN
+    // =====================================================
     function renderTable(data) {
         const tbody = document.getElementById('tbodyData');
         tbody.innerHTML = '';
@@ -755,6 +842,199 @@
             info.innerHTML = '❌ Error: ' + err.message;
             info.style.display = 'block';
         }
+    }
+
+    // =====================================================
+    // QR CODE
+    // =====================================================
+    async function loadDaftarKelas() {
+        try {
+            const res = await apiGet({ action: 'kelas' });
+            if (!res.success) return;
+            const select = document.getElementById('inputKelasQR');
+            const cv = select.value;
+            select.innerHTML = '<option value="semua">Semua Kelas</option>';
+            (res.data || []).forEach(k => {
+                const opt = document.createElement('option');
+                opt.value = k;
+                opt.textContent = k;
+                select.appendChild(opt);
+            });
+            if (cv) select.value = cv;
+        } catch (err) { console.log('Load kelas error:', err); }
+    }
+
+    async function loadQRCode() {
+        const grid = document.getElementById('qrGrid');
+        const emptyMsg = document.getElementById('qrEmptyMsg');
+        const loading = document.getElementById('loadingQR');
+        
+        grid.innerHTML = '';
+        emptyMsg.style.display = 'none';
+        loading.style.display = 'block';
+        
+        const kelas = document.getElementById('inputKelasQR').value;
+        
+        try {
+            const res = await apiGet({ action: 'siswa', kelas: kelas });
+            loading.style.display = 'none';
+            
+            if (!res.success || !res.data || res.data.length === 0) {
+                emptyMsg.style.display = 'block';
+                return;
+            }
+            
+            qrStudentsList = res.data;
+            qrSelectedSet = {};
+            
+            res.data.forEach((siswa) => {
+                const card = document.createElement('div');
+                card.className = 'qr-card';
+                card.dataset.nis = siswa.nis;
+                
+                const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + 
+                              encodeURIComponent(siswa.nis) + '&margin=10';
+                
+                card.innerHTML = 
+                    '<input type="checkbox" class="qr-checkbox" onchange="toggleQrSelect(\'' + siswa.nis + '\', this)">' +
+                    '<img src="' + qrUrl + '" alt="QR ' + siswa.nis + '" loading="lazy" crossorigin="anonymous">' +
+                    '<div class="qr-nama">' + siswa.nama + '</div>' +
+                    '<div class="qr-nis">' + siswa.nis + '</div>' +
+                    '<div class="qr-kelas">' + siswa.kelas + '</div>' +
+                    '<div class="qr-actions">' +
+                    '<button onclick="downloadSingleQR(\'' + siswa.nis + '\', \'' + escapeStr(siswa.nama) + '\')">⬇️</button>' +
+                    '<button class="print-btn" onclick="printSingleQR(\'' + siswa.nis + '\', \'' + escapeStr(siswa.nama) + '\', \'' + escapeStr(siswa.kelas) + '\')">🖨️</button>' +
+                    '</div>';
+                
+                grid.appendChild(card);
+            });
+        } catch (err) {
+            loading.style.display = 'none';
+            alert('Error: ' + err.message);
+        }
+    }
+
+    function toggleQrSelect(nis, checkbox) {
+        if (checkbox.checked) {
+            qrSelectedSet[nis] = true;
+        } else {
+            delete qrSelectedSet[nis];
+        }
+        const card = document.querySelector('.qr-card[data-nis="' + nis + '"]');
+        if (card) card.classList.toggle('selected', checkbox.checked);
+    }
+
+    function toggleSelectAll() {
+        const all = document.querySelectorAll('#qrGrid .qr-card');
+        const shouldSelect = Object.keys(qrSelectedSet).length < all.length;
+        
+        qrSelectedSet = {};
+        all.forEach(card => {
+            const nis = card.dataset.nis;
+            const cb = card.querySelector('.qr-checkbox');
+            if (shouldSelect) {
+                qrSelectedSet[nis] = true;
+                cb.checked = true;
+                card.classList.add('selected');
+            } else {
+                cb.checked = false;
+                card.classList.remove('selected');
+            }
+        });
+    }
+
+    async function downloadSingleQR(nis, nama) {
+        const url = 'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' + 
+                    encodeURIComponent(nis) + '&margin=10';
+        
+        try {
+            const res = await fetch(url);
+            const blob = await res.blob();
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'QR_' + nis + '_' + nama.replace(/\s+/g, '_') + '.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        } catch (err) {
+            window.open(url, '_blank');
+        }
+    }
+
+    async function downloadSelectedQR() {
+        const nisArr = Object.keys(qrSelectedSet);
+        if (nisArr.length === 0) {
+            alert('Pilih minimal 1 siswa terlebih dahulu.\n\nCentang checkbox di pojok kiri atas kartu QR.');
+            return;
+        }
+        
+        if (!confirm('Download ' + nisArr.length + ' QR Code?\n\nFile akan diunduh satu per satu oleh browser.')) return;
+        
+        const prog = document.getElementById('downloadProgress');
+        const progText = document.getElementById('downloadProgressText');
+        const barFill = document.getElementById('downloadBarFill');
+        prog.style.display = 'block';
+        
+        for (let i = 0; i < nisArr.length; i++) {
+            const nis = nisArr[i];
+            const siswa = qrStudentsList.find(s => s.nis === nis);
+            if (!siswa) continue;
+            
+            progText.innerText = 'Mengunduh ' + (i + 1) + ' / ' + nisArr.length + ': ' + siswa.nama;
+            barFill.style.width = ((i + 1) / nisArr.length * 100) + '%';
+            
+            await downloadSingleQR(nis, siswa.nama);
+            await new Promise(r => setTimeout(r, 400));
+        }
+        
+        progText.innerText = '✅ Selesai! ' + nisArr.length + ' file berhasil diunduh.';
+        setTimeout(() => {
+            prog.style.display = 'none';
+            barFill.style.width = '0%';
+        }, 3000);
+    }
+
+    function printSingleQR(nis, nama, kelas) {
+        const url = 'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' + encodeURIComponent(nis) + '&margin=10';
+        const win = window.open('', '_blank');
+        win.document.write('<!DOCTYPE html><html><head><title>Cetak QR - ' + nama + '</title>' +
+            '<style>body{font-family:Arial;text-align:center;padding:30px;}.card{display:inline-block;padding:20px;border:3px solid #8e44ad;border-radius:15px;max-width:350px;}.card img{width:280px;height:280px;}.nama{font-size:18px;font-weight:bold;margin:10px 0 5px;}.nis{font-family:monospace;font-size:14px;color:#666;}.kelas{font-size:13px;color:#8e44ad;font-weight:bold;margin-top:5px;}.title{font-size:12px;color:#999;margin-bottom:15px;}@media print{@page{margin:10mm;}}</style></head><body>' +
+            '<div class="card"><div class="title">KARTU ABSENSI SISWA</div>' +
+            '<img src="' + url + '" onload="setTimeout(function(){window.print();},800)">' +
+            '<div class="nama">' + nama + '</div><div class="nis">' + nis + '</div><div class="kelas">' + kelas + '</div></div></body></html>');
+        win.document.close();
+    }
+
+    function printSelectedQR() {
+        const nisArr = Object.keys(qrSelectedSet);
+        if (nisArr.length === 0) {
+            alert('Pilih minimal 1 siswa terlebih dahulu.');
+            return;
+        }
+        
+        const win = window.open('', '_blank');
+        let html = '<!DOCTYPE html><html><head><title>Cetak Kartu QR</title><style>' +
+            'body{font-family:Arial;padding:10px;}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}' +
+            '.card{padding:8px;border:2px dashed #8e44ad;border-radius:8px;text-align:center;page-break-inside:avoid;}' +
+            '.card img{width:100%;max-width:160px;height:auto;}.nama{font-size:11px;font-weight:bold;margin:4px 0 2px;line-height:1.2;}' +
+            '.nis{font-family:monospace;font-size:10px;color:#666;}.kelas{font-size:9px;color:#8e44ad;font-weight:bold;}' +
+            '.header-title{text-align:center;margin-bottom:15px;font-size:14px;font-weight:bold;}' +
+            '@media print{@page{margin:8mm;size:A4;}}</style></head><body>' +
+            '<div class="header-title">KARTU ABSENSI SISWA - QR CODE</div><div class="grid">';
+        
+        nisArr.forEach(nis => {
+            const siswa = qrStudentsList.find(s => s.nis === nis);
+            if (!siswa) return;
+            const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(nis) + '&margin=10';
+            html += '<div class="card"><img src="' + qrUrl + '" crossorigin="anonymous">' +
+                '<div class="nama">' + siswa.nama + '</div><div class="nis">' + siswa.nis + '</div><div class="kelas">' + siswa.kelas + '</div></div>';
+        });
+        
+        html += '</div></body></html>';
+        win.document.write(html);
+        win.document.close();
+        setTimeout(() => win.print(), 1500);
     }
 </script>
 
