@@ -113,23 +113,16 @@
         .table-wrap { max-height: 400px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; }
         .no-data { text-align: center; padding: 30px; color: #888; font-style: italic; display: none; }
         
-        .config-warning {
-            background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px;
-            margin-bottom: 15px; font-size: 13px; display: none;
-        }
+        .config-warning { background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 13px; display: none; }
         .config-warning code { background: #fff; padding: 2px 6px; border-radius: 4px; }
         
-        /* QR CODE */
         .qr-toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; }
         .qr-toolbar label { font-size: 13px; color: #555; font-weight: bold; }
         .qr-toolbar select { padding: 8px 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 13px; }
         .qr-toolbar .btn-sm { padding: 8px 14px; border: none; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; }
         .btn-download-all { background: #e67e22; color: white; }
-        .btn-download-all:hover { background: #d35400; }
         .btn-print-selected { background: #27ae60; color: white; }
-        .btn-print-selected:hover { background: #229954; }
         .btn-select-all { background: #95a5a6; color: white; }
-        .btn-select-all:hover { background: #7f8c8d; }
         
         .qr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
         .qr-card { position: relative; background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 12px; text-align: center; transition: all 0.2s; }
@@ -141,21 +134,12 @@
         .qr-card .qr-kelas { font-size: 10px; color: #8e44ad; font-weight: bold; margin-top: 3px; }
         .qr-card .qr-actions { margin-top: 8px; display: flex; gap: 4px; justify-content: center; }
         .qr-card .qr-actions button { font-size: 11px; padding: 5px 8px; border-radius: 4px; border: none; cursor: pointer; background: #3498db; color: white; font-weight: bold; }
-        .qr-card .qr-actions button:hover { background: #2980b9; }
         .qr-card .qr-actions button.print-btn { background: #27ae60; }
-        .qr-card .qr-actions button.print-btn:hover { background: #229954; }
         .qr-card .qr-checkbox { position: absolute; top: 8px; left: 8px; width: 18px; height: 18px; cursor: pointer; }
         
-        .download-progress {
-            background: #fff3cd; color: #856404; padding: 12px;
-            border-radius: 8px; margin-top: 10px; font-size: 13px; display: none;
-        }
-        .download-progress .bar {
-            height: 8px; background: #e0e0e0; border-radius: 4px; margin-top: 8px; overflow: hidden;
-        }
-        .download-progress .bar-fill {
-            height: 100%; background: #f39c12; transition: width 0.3s; width: 0%;
-        }
+        .download-progress { background: #fff3cd; color: #856404; padding: 12px; border-radius: 8px; margin-top: 10px; font-size: 13px; display: none; }
+        .download-progress .bar { height: 8px; background: #e0e0e0; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+        .download-progress .bar-fill { height: 100%; background: #f39c12; transition: width 0.3s; width: 0%; }
     </style>
 </head>
 <body>
@@ -169,7 +153,6 @@
         <button class="btn-admin" id="btnAdminToggle" onclick="toggleAdmin()">🔐 Admin</button>
     </div>
     
-    <!-- ABSEN VIEW -->
     <div class="body" id="absenView">
         <div class="config-warning" id="configWarning">
             ⚠️ <b>API_URL belum diisi!</b> Buka file <code>index.html</code>, cari <code>const API_URL = "..."</code> dan isi dengan URL Web App Apps Script Anda.
@@ -214,7 +197,6 @@
         </div>
     </div>
     
-    <!-- ADMIN VIEW -->
     <div class="body admin-view" id="adminView">
         <div id="loginSection">
             <div class="login-box">
@@ -238,7 +220,6 @@
                 <div class="tab" onclick="switchTab('qr', this)">QR Code</div>
             </div>
             
-            <!-- Filter Harian -->
             <div class="filter-group" id="filterHarian">
                 <label>Tanggal:</label>
                 <input type="date" id="inputTanggal">
@@ -247,7 +228,6 @@
                 <button class="btn-excel" onclick="exportLaporan('harian', 'xlsx')">📊 Excel</button>
             </div>
             
-            <!-- Filter Bulanan -->
             <div class="filter-group" id="filterBulanan" style="display:none;">
                 <label>Bulan:</label>
                 <select id="inputBulan">
@@ -265,7 +245,6 @@
                 <button class="btn-excel" onclick="exportLaporan('bulanan', 'xlsx')">📊 Excel</button>
             </div>
             
-            <!-- Filter Tahunan -->
             <div class="filter-group" id="filterTahunan" style="display:none;">
                 <label>Tahun:</label>
                 <input type="number" id="inputTahun" value="2024" style="width: 80px;">
@@ -274,7 +253,6 @@
                 <button class="btn-excel" onclick="exportLaporan('tahunan', 'xlsx')">📊 Excel</button>
             </div>
             
-            <!-- Panel QR Code -->
             <div id="panelQR" style="display:none;">
                 <div class="qr-toolbar">
                     <label>Kelas:</label>
@@ -288,7 +266,7 @@
                 </div>
                 
                 <div class="info-msg" style="display:block; background:#e3f2fd; color:#0d47a1;">
-                    💡 <b>Cara pakai:</b> Centang siswa yang mau di-download, klik <b>Download Terpilih</b>. File PNG akan diunduh satu per satu. Untuk cetak massal, klik <b>Cetak Terpilih</b>.
+                    💡 <b>Cara pakai:</b> Centang siswa yang mau di-download, klik <b>Download Terpilih</b>. File PNG akan diunduh satu per satu.
                 </div>
                 
                 <div class="loading" id="loadingQR" style="display:none;">Memuat QR Code...</div>
@@ -386,6 +364,96 @@
     function escapeStr(s) {
         return (s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     }
+
+    // =====================================================
+    // BUNYI BEEP
+    // =====================================================
+    let audioCtx = null;
+    function initAudio() {
+        if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
+    }
+    function beep(freq, dur) {
+        initAudio();
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.value = 0.3;
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + dur);
+        } catch(e){}
+    }
+
+    // =====================================================
+    // TEXT-TO-SPEECH: "TERIMA KASIH, [NAMA]"
+    // =====================================================
+    let speechReady = false;
+    let suaraTersedia = null;
+
+    function initSpeech() {
+        if (speechReady) return;
+        if (!('speechSynthesis' in window)) return;
+        
+        const voices = window.speechSynthesis.getVoices();
+        // Cari suara Indonesia
+        suaraTersedia = voices.find(v => v.lang === 'id-ID' || v.lang === 'id_ID') || 
+                        voices.find(v => v.lang && v.lang.indexOf('id') === 0) ||
+                        voices.find(v => v.lang && v.lang.indexOf('ms') === 0) ||
+                        null;
+        speechReady = true;
+        console.log('Voice TTS:', suaraTersedia ? suaraTersedia.name : 'default');
+    }
+
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = initSpeech;
+        initSpeech();
+    }
+
+    function ucapkanTerimaKasih(nama) {
+        if (!('speechSynthesis' in window)) {
+            console.log('Browser tidak mendukung speech synthesis');
+            return;
+        }
+        try {
+            window.speechSynthesis.cancel();
+            initSpeech();
+            
+            // Ambil nama depan saja (kata pertama)
+            const namaDepan = (nama || '').split(' ')[0];
+            const text = 'Terima kasih, ' + namaDepan;
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = 1.0;
+            utterance.pitch = 1.1;
+            utterance.volume = 1.0;
+            
+            if (suaraTersedia) utterance.voice = suaraTersedia;
+            
+            window.speechSynthesis.speak(utterance);
+        } catch (e) {
+            console.log('Error TTS:', e);
+        }
+    }
+
+    // Aktifkan audio + speech pada interaksi pertama
+    document.addEventListener('click', function() {
+        initAudio();
+        initSpeech();
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    }, { once: true });
+
+    // Preload TTS
+    window.addEventListener('load', function() {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+        }
+    });
 
     // =====================================================
     // STATUS
@@ -564,7 +632,7 @@
     });
 
     // =====================================================
-    // PROSES ABSEN
+    // PROSES ABSEN + SUARA TERIMA KASIH
     // =====================================================
     async function prosesAbsen(nis) {
         const resultBox = document.getElementById('resultBox');
@@ -579,6 +647,7 @@
                 const isMasuk = res.mode === 'masuk';
                 resultBox.className = 'result ' + (isMasuk ? 'success-masuk' : 'success-pulang');
                 
+                // Bunyi beep
                 if (isMasuk) {
                     beep(1200, 0.1);
                     setTimeout(() => beep(1600, 0.15), 120);
@@ -586,6 +655,9 @@
                     beep(900, 0.1);
                     setTimeout(() => beep(1200, 0.15), 120);
                 }
+                
+                // 🔊 SUARA TERIMA KASIH + NAMA (setelah beep selesai)
+                setTimeout(() => ucapkanTerimaKasih(res.siswa.nama), 350);
                 
                 resultBox.innerHTML = 
                     '<h2>' + (isMasuk ? '✅ Absen Masuk Berhasil' : '👋 Absen Pulang Berhasil') + '</h2>' +
@@ -609,34 +681,6 @@
         
         if (currentMode === 'rfid') rfidInput.focus();
     }
-
-    // =====================================================
-    // BUNYI
-    // =====================================================
-    let audioCtx = null;
-    function initAudio() {
-        if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} }
-    }
-    function beep(freq, dur) {
-        initAudio();
-        if (!audioCtx) return;
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        try {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.value = freq;
-            gain.gain.value = 0.3;
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + dur);
-        } catch(e){}
-    }
-    document.addEventListener('click', function() {
-        initAudio();
-        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-    }, { once: true });
 
     // =====================================================
     // ADMIN
@@ -915,11 +959,8 @@
     }
 
     function toggleQrSelect(nis, checkbox) {
-        if (checkbox.checked) {
-            qrSelectedSet[nis] = true;
-        } else {
-            delete qrSelectedSet[nis];
-        }
+        if (checkbox.checked) qrSelectedSet[nis] = true;
+        else delete qrSelectedSet[nis];
         const card = document.querySelector('.qr-card[data-nis="' + nis + '"]');
         if (card) card.classList.toggle('selected', checkbox.checked);
     }
@@ -946,7 +987,6 @@
     async function downloadSingleQR(nis, nama) {
         const url = 'https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=' + 
                     encodeURIComponent(nis) + '&margin=10';
-        
         try {
             const res = await fetch(url);
             const blob = await res.blob();
@@ -965,11 +1005,11 @@
     async function downloadSelectedQR() {
         const nisArr = Object.keys(qrSelectedSet);
         if (nisArr.length === 0) {
-            alert('Pilih minimal 1 siswa terlebih dahulu.\n\nCentang checkbox di pojok kiri atas kartu QR.');
+            alert('Pilih minimal 1 siswa terlebih dahulu.');
             return;
         }
         
-        if (!confirm('Download ' + nisArr.length + ' QR Code?\n\nFile akan diunduh satu per satu oleh browser.')) return;
+        if (!confirm('Download ' + nisArr.length + ' QR Code?\n\nFile akan diunduh satu per satu.')) return;
         
         const prog = document.getElementById('downloadProgress');
         const progText = document.getElementById('downloadProgressText');
